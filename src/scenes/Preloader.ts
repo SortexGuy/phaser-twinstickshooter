@@ -34,6 +34,7 @@ export class Preloader extends Scene {
 			.image('cursor', 'dungeon_sprites/tile_0060.png')
 			.image('spawnp', 'dungeon_sprites/tile_0061.png')
 			.image('player', 'dungeon_sprites/tile_0084.png')
+			.image('enemy', 'dungeon_sprites/tile_0108.png')
 			.image('bullet', 'dungeon_sprites/tile_0105.png');
 
 		// Load maps

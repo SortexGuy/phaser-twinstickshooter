@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  bitecs:
+    specifier: ^0.3.40
+    version: 0.3.40
   phaser:
     specifier: ^3.80.1
     version: 3.80.1
@@ -379,6 +382,10 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
+
+  /bitecs@0.3.40:
+    resolution: {integrity: sha512-wAylY4pNfX8IeIH5phtwt1lUNtHKrkoSNrArI7Ris2Y4nEQWFIVvXdgAuqprEg9bq8Wolmlj0gVfeG6MFmtI2Q==}
+    dev: false
 
   /buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
