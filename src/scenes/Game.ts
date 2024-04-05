@@ -1,14 +1,22 @@
 import { Scene } from 'phaser';
-import { Player } from './components/Player';
-import { ProyectileManager } from './components/ProyectileManager';
-import { EnemySpawner } from './components/EnemySpawner';
+import { Player } from '../components/Player';
+import { Proyectile, ProyectileManager } from '../components/ProyectileManager';
+import { Enemy, EnemySpawner } from '../components/EnemySpawner';
+
+export interface SpriteConfig {
+	scene: Phaser.Scene;
+	x: number;
+	y: number;
+}
+export interface GroupConfig {
+	world: Phaser.Physics.Arcade.World;
+	scene: Phaser.Scene;
+}
 
 export class Game extends Scene {
 	private camera: Phaser.Cameras.Scene2D.Camera;
 	private msg_text: Phaser.GameObjects.Text;
 	private player: Player;
-	private proyectile_man: ProyectileManager;
-	private enemy_spawner: EnemySpawner;
 	private tilemap: Phaser.Tilemaps.Tilemap;
 
 	constructor() {
@@ -19,12 +27,13 @@ export class Game extends Scene {
 		this.camera = this.cameras.main;
 		this.camera.setBackgroundColor(0xff0000).setZoom(2.4);
 
-		this.proyectile_man = new ProyectileManager(this);
-		this.player = new Player(
-			this.physics.add.image(100, 100, 'player').setDepth(500),
-			this.camera,
-			this.proyectile_man,
-		);
+		const proy_man = new ProyectileManager({
+			world: this.physics.world,
+			scene: this,
+		});
+		this.add.existing(proy_man);
+
+		this.player = new Player({ scene: this, x: 100, y: 100 }, proy_man);
 
 		this.tilemap = this.make.tilemap({ key: 'main_arena' });
 		const tileset = this.tilemap.addTilesetImage('tileset', 'arena_tiles');
@@ -40,15 +49,20 @@ export class Game extends Scene {
 			delay: 3000,
 			loop: true,
 		});
-		this.enemy_spawner = new EnemySpawner(
+		const enemy_spawner = new EnemySpawner(
+			{ world: this.physics.world, scene: this },
 			spawn_points,
 			spawn_timer,
 			this.player,
-			this.physics,
-			this.scene,
 		);
+		this.add.existing(enemy_spawner);
 
-		this.physics.add.collider(this.player.sprite, sLayer);
+		this.physics.add.collider(this.player, sLayer);
+		this.physics.add.overlap(proy_man, enemy_spawner, (proy, enemy) => {
+			proy.addScoreToOwner(enemy.getScoreValue());
+			proy_man.remove(proy, true, true);
+			enemy_spawner.remove(enemy, true, true);
+		});
 
 		const debugGraphics = this.add.graphics().setAlpha(0.5).setDepth(1);
 		sLayer?.renderDebug(debugGraphics, {
@@ -74,6 +88,7 @@ export class Game extends Scene {
 
 		this.input.keyboard?.once('keydown-SPACE', () => {
 			console.log('Cambiando a GameOver');
+			this.scene.stop('GameHUD');
 			this.scene.start('GameOver');
 		});
 
@@ -82,8 +97,6 @@ export class Game extends Scene {
 
 	update(_time: number, _delta: number): void {
 		this.input.mousePointer.updateWorldPoint(this.camera);
-
-		this.enemy_spawner.update();
 		this.player.update();
 	}
 }
