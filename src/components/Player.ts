@@ -77,6 +77,7 @@ export class Player extends Phaser.Physics.Arcade.Image {
 
 		this.health -= dmg;
 		if (this.health <= 0) {
+			this.scene.scene.stop('GameHUD');
 			this.scene.scene.start('GameOver');
 		}
 

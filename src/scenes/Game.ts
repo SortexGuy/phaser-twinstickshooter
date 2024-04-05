@@ -37,8 +37,11 @@ export class Game extends Scene {
 
 		this.tilemap = this.make.tilemap({ key: 'main_arena' });
 		const tileset = this.tilemap.addTilesetImage('tileset', 'arena_tiles');
-		const bLayer = this.tilemap.createLayer('Base', tileset, 0, 0).setDepth(-10);
-		const sLayer = this.tilemap.createLayer('Solid', tileset, 0, 0).setDepth(0);
+		if (tileset === null) throw new Error('Tileset not found');
+
+		const bLayer = this.tilemap.createLayer('Base', tileset, 0, 0)?.setDepth(-10);
+		const sLayer = this.tilemap.createLayer('Solid', tileset, 0, 0)?.setDepth(0);
+		if (!sLayer) throw new Error('Solid Layer not found');
 		sLayer.setCollisionByProperty({ collides: true });
 
 		const spawn_points = this.tilemap.createFromObjects('SpawnPoints', {
@@ -58,9 +61,12 @@ export class Game extends Scene {
 		this.add.existing(enemy_spawner);
 
 		this.physics.add.collider(this.player, sLayer);
-		this.physics.add.overlap(proy_man, enemy_spawner, (proy, enemy) => {
-			proy.addScoreToOwner(enemy.getScoreValue());
-			proy_man.remove(proy, true, true);
+		this.physics.add.overlap(proy_man, enemy_spawner, (bullet, enemy) => {
+			if (!(bullet instanceof Proyectile) || !(enemy instanceof Enemy))
+				throw new Error('Wrong types for overlap');
+
+			bullet.addScoreToOwner(enemy.getScoreValue());
+			proy_man.remove(bullet, true, true);
 			enemy_spawner.remove(enemy, true, true);
 		});
 
