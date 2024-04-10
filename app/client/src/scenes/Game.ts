@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import { Player } from '../components/Player';
 import { Proyectile, ProyectileManager } from '../components/ProyectileManager';
 import { Enemy, EnemySpawner } from '../components/EnemySpawner';
+import * as Colyseus from 'colyseus.js';
 
 export interface SpriteConfig {
 	scene: Phaser.Scene;
@@ -14,6 +15,8 @@ export interface GroupConfig {
 }
 
 export class Game extends Scene {
+	private client: Colyseus.Client;
+	private room: Colyseus.Room;
 	private camera: Phaser.Cameras.Scene2D.Camera;
 	private msg_text: Phaser.GameObjects.Text;
 	private player: Player;
@@ -23,7 +26,22 @@ export class Game extends Scene {
 		super('Game');
 	}
 
+	init() {
+		this.client = new Colyseus.Client('ws://localhost:45800');
+	}
+
 	create() {
+		const joinRoom = async () => {
+			try {
+				this.room = await this.client.joinOrCreate('room_arena');
+				console.log('joined successfully', this.room.name);
+			} catch (e) {
+				console.error('join error', e);
+			}
+		};
+		joinRoom();
+		// Colyseus stuff ^^^^
+
 		this.camera = this.cameras.main;
 		this.camera.setBackgroundColor(0xff0000).setZoom(2.4);
 
@@ -92,10 +110,11 @@ export class Game extends Scene {
 		);
 		this.msg_text.setOrigin(0.5);
 
-		this.input.keyboard?.once('keydown-SPACE', () => {
+		this.input.keyboard?.once('keydown-SPACE', async () => {
 			console.log('Cambiando a GameOver');
 			this.scene.stop('GameHUD');
 			this.scene.start('GameOver');
+			await this.room.leave();
 		});
 
 		this.scene.launch('GameHUD');

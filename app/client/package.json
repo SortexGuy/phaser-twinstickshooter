@@ -7,6 +7,7 @@
 		"build": "vite build --config vite/config.prod.mjs"
 	},
 	"dependencies": {
+		"colyseus.js": "^0.15.18",
 		"phaser": "^3.80.1",
 		"phaser3-rex-plugins": "^1.80.2"
 	},

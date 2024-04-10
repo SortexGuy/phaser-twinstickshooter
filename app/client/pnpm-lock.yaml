@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  colyseus.js:
+    specifier: ^0.15.18
+    version: 0.15.18
   phaser:
     specifier: ^3.80.1
     version: 3.80.1
@@ -30,6 +33,11 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.1
+    dev: false
+
+  /@colyseus/schema@2.0.30:
+    resolution: {integrity: sha512-BURK3ppTLyi3D0ldfv/Gwn5O1lxR+VRJiEL7KAMj6CovvEA74Y4eRL7nXvQxZU7fsUph9Ag7v39SarMrXvH6DA==}
+    hasBin: true
     dev: false
 
   /@esbuild/aix-ppc64@0.20.2:
@@ -414,6 +422,19 @@ packages:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
     dev: true
 
+  /colyseus.js@0.15.18:
+    resolution: {integrity: sha512-/yLsqN0d0D1N2dhTlJkP80Z/YtKZU6MEaevu0q02V0qppQ/I53zzVqnDnaGAE1R/6NLB1I2Ry5+0l/tevnKDrw==}
+    engines: {node: '>= 12.x'}
+    dependencies:
+      '@colyseus/schema': 2.0.30
+      httpie: 2.0.0-next.13
+      tslib: 2.6.2
+      ws: 8.16.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
   /commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
     dev: true
@@ -472,6 +493,11 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /httpie@2.0.0-next.13:
+    resolution: {integrity: sha512-KbKOnq8wt0hVEfteYCSnEsPgzaWxcVc4qZ4OaDU9mVOYLRo3XChjWs3MiuRgFu5y+4JDo7sDKdKzkAn1ljQYFA==}
+    engines: {node: '>=10'}
+    dev: false
 
   /i18next-http-backend@2.5.0:
     resolution: {integrity: sha512-Z/aQsGZk1gSxt2/DztXk92DuDD20J+rNudT7ZCdTrNOiK8uQppfvdjq9+DFQfpAnFPn3VZS+KQIr1S/W1KxhpQ==}
@@ -615,6 +641,10 @@ packages:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
     dev: false
 
+  /tslib@2.6.2:
+    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+    dev: false
+
   /typescript@5.4.4:
     resolution: {integrity: sha512-dGE2Vv8cpVvw28v8HCPqyb08EzbBURxDpuhJvTrusShUfGnhHBafDsLdS1EhhxyL6BJQE+2cT3dDPAv+MQ6oLw==}
     engines: {node: '>=14.17'}
@@ -670,4 +700,17 @@ packages:
     dependencies:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
+    dev: false
+
+  /ws@8.16.0:
+    resolution: {integrity: sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
     dev: false
