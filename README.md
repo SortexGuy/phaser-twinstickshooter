@@ -1,6 +1,6 @@
 <div align="center">
 
-![GameDemo](media/GameDemo.mp4)
+![GameDemo](media/GameDemo.gif)
 
 </div>
 
