@@ -1,4 +1,5 @@
 import { Boot } from './scenes/Boot';
+import { PreGame } from './scenes/PreGame';
 import { Game } from './scenes/Game';
 import { GameHUD } from './scenes/GameHUD';
 import { GameOver } from './scenes/GameOver';
@@ -28,7 +29,7 @@ const config: Types.Core.GameConfig = {
 			gravity: { x: 0, y: 0 },
 		},
 	},
-	scene: [Boot, Preloader, MainMenu, Game, GameHUD, GameOver],
+	scene: [Boot, Preloader, MainMenu, PreGame, Game, GameHUD, GameOver],
 	plugins: {
 		scene: [
 			{

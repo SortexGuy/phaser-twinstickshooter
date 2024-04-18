@@ -2,7 +2,9 @@ import { Scene } from 'phaser';
 import { Player } from '../components/Player';
 import { Proyectile, ProyectileManager } from '../components/ProyectileManager';
 import { Enemy, EnemySpawner } from '../components/EnemySpawner';
-import * as Colyseus from 'colyseus.js';
+// import * as Colyseus from 'colyseus.js';
+import type Server from '../services/Server';
+import { IArenaState } from '../types/IArenaState';
 
 export interface SpriteConfig {
 	scene: Phaser.Scene;
@@ -15,10 +17,9 @@ export interface GroupConfig {
 }
 
 export class Game extends Scene {
-	private client: Colyseus.Client;
-	private room: Colyseus.Room;
 	private camera: Phaser.Cameras.Scene2D.Camera;
 	private msg_text: Phaser.GameObjects.Text;
+	private enemy_spawner: EnemySpawner;
 	private player: Player;
 	private tilemap: Phaser.Tilemaps.Tilemap;
 
@@ -27,20 +28,17 @@ export class Game extends Scene {
 	}
 
 	init() {
-		this.client = new Colyseus.Client('ws://localhost:45800');
+		// this.client = new Colyseus.Client('ws://localhost:45800');
 	}
 
-	create() {
-		const joinRoom = async () => {
-			try {
-				this.room = await this.client.joinOrCreate('room_arena');
-				console.log('joined successfully', this.room.name);
-			} catch (e) {
-				console.error('join error', e);
-			}
-		};
-		joinRoom();
-		// Colyseus stuff ^^^^
+	create(data: { server: Server }) {
+		const { server } = data;
+		let colyseusStuff = async () => {
+			await server.join();
+
+			server.onStateChanged(this.onStateChanged, this);
+		}
+		colyseusStuff();
 
 		this.camera = this.cameras.main;
 		this.camera.setBackgroundColor(0xff0000).setZoom(2.4);
@@ -57,9 +55,8 @@ export class Game extends Scene {
 		const tileset = this.tilemap.addTilesetImage('tileset', 'arena_tiles');
 		if (tileset === null) throw new Error('Tileset not found');
 
-		const bLayer = this.tilemap.createLayer('Base', tileset, 0, 0)?.setDepth(-10);
-		const sLayer = this.tilemap.createLayer('Solid', tileset, 0, 0)?.setDepth(0);
-		if (!sLayer) throw new Error('Solid Layer not found');
+		const bLayer = this.tilemap.createLayer('Base', tileset, 0, 0)!.setDepth(-10);
+		const sLayer = this.tilemap.createLayer('Solid', tileset, 0, 0)!.setDepth(0);
 		sLayer.setCollisionByProperty({ collides: true });
 
 		const spawn_points = this.tilemap.createFromObjects('SpawnPoints', {
@@ -70,26 +67,26 @@ export class Game extends Scene {
 			delay: 3000,
 			loop: true,
 		});
-		const enemy_spawner = new EnemySpawner(
+		this.enemy_spawner = new EnemySpawner(
 			{ world: this.physics.world, scene: this },
 			spawn_points,
 			spawn_timer,
 			this.player,
 		);
-		this.add.existing(enemy_spawner);
+		this.add.existing(this.enemy_spawner);
 
 		this.physics.add.collider(this.player, sLayer);
-		this.physics.add.overlap(proy_man, enemy_spawner, (bullet, enemy) => {
+		this.physics.add.overlap(proy_man, this.enemy_spawner, (bullet, enemy) => {
 			if (!(bullet instanceof Proyectile) || !(enemy instanceof Enemy))
 				throw new Error('Wrong types for overlap');
 
 			bullet.addScoreToOwner(enemy.getScoreValue());
 			proy_man.remove(bullet, true, true);
-			enemy_spawner.remove(enemy, true, true);
+			this.enemy_spawner.remove(enemy, true, true);
 		});
 
 		const debugGraphics = this.add.graphics().setAlpha(0.5).setDepth(1);
-		sLayer?.renderDebug(debugGraphics, {
+		sLayer.renderDebug(debugGraphics, {
 			tileColor: null, // Color of non-colliding tiles
 			collidingTileColor: new Phaser.Display.Color(243, 234, 48, 255), // Color of colliding tiles
 			faceColor: new Phaser.Display.Color(40, 39, 37, 255), // Color of colliding face edges
@@ -110,11 +107,15 @@ export class Game extends Scene {
 		);
 		this.msg_text.setOrigin(0.5);
 
-		this.input.keyboard?.once('keydown-SPACE', async () => {
+		this.input.keyboard?.once('keydown-SPACE', () => {
 			console.log('Cambiando a GameOver');
 			this.scene.stop('GameHUD');
 			this.scene.start('GameOver');
-			await this.room.leave();
+			this.scene.stop('PreGame');
+			let leave = async () => {
+				await server.leave();
+			};
+			leave();
 		});
 
 		this.scene.launch('GameHUD');
@@ -123,5 +124,9 @@ export class Game extends Scene {
 	update(_time: number, _delta: number): void {
 		this.input.mousePointer.updateWorldPoint(this.camera);
 		this.player.update();
+	}
+
+	onStateChanged(state: IArenaState) {
+		console.log(state);
 	}
 }
